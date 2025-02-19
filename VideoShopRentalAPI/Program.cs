@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using VideoShopRentalAPI.Data;
+using VideoShopRentalAPI.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,3 +38,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+

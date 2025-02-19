@@ -1,12 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VideoShopRentalAPI.Data;
 using VideoShopRentalAPI.Models;
 
 namespace VideoShopRentalAPI.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class CustomersController : ControllerBase
     {
         private readonly VideoRentalShopDbContext _context;
@@ -23,32 +28,29 @@ namespace VideoShopRentalAPI.Controllers
             return await _context.Customers.ToListAsync();
         }
 
-        // GET: api/Customers/{id}
+        // GET: api/Customers/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Customer>> GetCustomer(int id)
         {
             var customer = await _context.Customers.FindAsync(id);
+
             if (customer == null)
+            {
                 return NotFound();
+            }
+
             return customer;
         }
 
-        // POST: api/Customers
-        [HttpPost]
-        public async Task<ActionResult<Customer>> CreateCustomer(Customer customer)
-        {
-            _context.Customers.Add(customer);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, customer);
-        }
-
-        // PUT: api/Customers/{id}
+        // PUT: api/Customers/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCustomer(int id, Customer customer)
+        public async Task<IActionResult> PutCustomer(int id, Customer customer)
         {
             if (id != customer.Id)
+            {
                 return BadRequest();
+            }
 
             _context.Entry(customer).State = EntityState.Modified;
 
@@ -58,26 +60,49 @@ namespace VideoShopRentalAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Customers.Any(e => e.Id == id))
+                if (!CustomerExists(id))
+                {
                     return NotFound();
-                throw;
+                }
+                else
+                {
+                    throw;
+                }
             }
 
             return NoContent();
         }
 
-        // DELETE: api/Customers/{id}
+        // POST: api/Customers
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
+        {
+            _context.Customers.Add(customer);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
+        }
+
+        // DELETE: api/Customers/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
             var customer = await _context.Customers.FindAsync(id);
             if (customer == null)
+            {
                 return NotFound();
+            }
 
             _context.Customers.Remove(customer);
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        private bool CustomerExists(int id)
+        {
+            return _context.Customers.Any(e => e.Id == id);
         }
     }
 }

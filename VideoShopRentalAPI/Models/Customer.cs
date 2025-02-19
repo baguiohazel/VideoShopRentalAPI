@@ -2,22 +2,17 @@
 {
     public class Customer
     {
-        public Customer() 
-        { 
-            RentalHeaders = new List<RentalHeader>();
-        }
-
-        public Customer(string name, string email, List<RentalHeader> rental =null)
-        {
-            Name = name;    
-            Email = email;
-            RentalHeaders = rental?? new List<RentalHeader>();
-        }
-
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public ICollection<RentalHeader> RentalHeaders { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public DateOnly DateOfBirth { get; set; }
+        public int Age { get; set; }
+        public string Sex { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+
+        public ICollection<Rental>? Rentals { get; set; }
 
     }
 }

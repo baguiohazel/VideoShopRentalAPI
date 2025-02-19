@@ -14,30 +14,38 @@ namespace VideoShopRentalAPI.Data
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<RentalDetail> RentalDetails { get; set; }
-        public DbSet<RentalHeader> RentalHeaders { get; set; }
+        public DbSet<Rental> Rentals { get; set; }
 
-        
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            
+            base.OnModelCreating(builder);
 
-            // One Customer -> Many RentalHeaders
-            modelBuilder.Entity<RentalHeader>()
-                .HasOne(rh => rh.Customer)
-                .WithMany(c => c.RentalHeaders)
-                .HasForeignKey(rh => rh.CustomerId);
+            // One Customer → Many Rentals
+            builder.Entity<Rental>()
+                .HasOne(r => r.Customers)
+                .WithMany(c => c.Rentals)
+                .HasForeignKey(r => r.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // One RentalHeader -> Many RentalDetails
-            modelBuilder.Entity<RentalDetail>()
-                .HasOne(rd => rd.RentalHeaders)
-                .WithMany(rh => rh.RentalDetails)
-                .HasForeignKey(rd => rd.RentalHeadersId);
+            // One Movie → Many RentalDetails (not Rentals directly)
+            builder.Entity<RentalDetail>()
+                .HasOne(rd => rd.Movies)
+                .WithMany(m => m.RentalDetails)
+                .HasForeignKey(rd => rd.MovieId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // RentalDetail links to Movie
-            modelBuilder.Entity<RentalDetail>()
-                        .HasOne(rd => rd.Movies)
-                        .WithMany(k => k.RentalDetails)
-                        .HasForeignKey(rd => rd.MovieId);
+            // One Rental → Many RentalDetails
+            builder.Entity<RentalDetail>()
+                .HasOne(rd => rd.Rentals)
+                .WithMany(r => r.RentalDetails)
+                .HasForeignKey(rd => rd.RentalId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            builder.Entity<RentalDetail>()
+                .Property(rd => rd.Status)
+                .HasDefaultValue("Rented");
         }
     }
 

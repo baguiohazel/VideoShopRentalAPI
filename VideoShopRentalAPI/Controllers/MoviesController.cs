@@ -1,17 +1,22 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VideoShopRentalAPI.Data;
 using VideoShopRentalAPI.Models;
 
 namespace VideoShopRentalAPI.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    public class MovieController : ControllerBase
+    [ApiController]
+    public class MoviesController : ControllerBase
     {
         private readonly VideoRentalShopDbContext _context;
 
-        public MovieController(VideoRentalShopDbContext context)
+        public MoviesController(VideoRentalShopDbContext context)
         {
             _context = context;
         }
@@ -23,32 +28,29 @@ namespace VideoShopRentalAPI.Controllers
             return await _context.Movies.ToListAsync();
         }
 
-        // GET: api/Movies/{id}
+        // GET: api/Movies/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Movie>> GetMovie(int id)
         {
             var movie = await _context.Movies.FindAsync(id);
+
             if (movie == null)
+            {
                 return NotFound();
+            }
+
             return movie;
         }
 
-        // POST: api/Movies
-        [HttpPost]
-        public async Task<ActionResult<Movie>> CreateMovie(Movie movie)
-        {
-            _context.Movies.Add(movie);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetMovie), new { id = movie.Id }, movie);
-        }
-
-        // PUT: api/Movies/{id}
+        // PUT: api/Movies/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMovie(int id, Movie movie)
+        public async Task<IActionResult> PutMovie(int id, Movie movie)
         {
             if (id != movie.Id)
+            {
                 return BadRequest();
+            }
 
             _context.Entry(movie).State = EntityState.Modified;
 
@@ -58,26 +60,49 @@ namespace VideoShopRentalAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Movies.Any(e => e.Id == id))
+                if (!MovieExists(id))
+                {
                     return NotFound();
-                throw;
+                }
+                else
+                {
+                    throw;
+                }
             }
 
             return NoContent();
         }
 
-        // DELETE: api/Movies/{id}
+        // POST: api/Movies
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<Movie>> PostMovie(Movie movie)
+        {
+            _context.Movies.Add(movie);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetMovie", new { id = movie.Id }, movie);
+        }
+
+        // DELETE: api/Movies/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMovie(int id)
         {
             var movie = await _context.Movies.FindAsync(id);
             if (movie == null)
+            {
                 return NotFound();
+            }
 
             _context.Movies.Remove(movie);
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        private bool MovieExists(int id)
+        {
+            return _context.Movies.Any(e => e.Id == id);
         }
     }
 }
